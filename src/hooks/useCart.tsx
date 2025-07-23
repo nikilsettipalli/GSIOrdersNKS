@@ -89,10 +89,8 @@ export const useCart = (): UseCartReturn => {
           throw new Error(error.error || "Failed to add to cart");
         }
 
-        const data = await response.json();
-        setCart(data);
-        await fetchCart(); // ✅ Refresh after mutation
-        console.log("✅ Added to cart successfully");
+        const updatedCart = await response.json();
+        setCart(updatedCart); // ✅ Directly update cart state
       } catch (error) {
         console.error("Error adding to cart:", error);
         throw error;
@@ -100,7 +98,7 @@ export const useCart = (): UseCartReturn => {
         setIsLoading(false);
       }
     },
-    [fetchCart]
+    []
   );
 
   // Remove item from cart
@@ -116,9 +114,8 @@ export const useCart = (): UseCartReturn => {
           throw new Error("Failed to remove from cart");
         }
 
-        const data = await response.json();
-        setCart(data);
-        await fetchCart(); // ✅ Refresh after mutation
+        const updatedCart = await response.json();
+        setCart(updatedCart); // ✅ Update cart immediately
       } catch (error) {
         console.error("Error removing from cart:", error);
         throw error;
@@ -126,7 +123,7 @@ export const useCart = (): UseCartReturn => {
         setIsLoading(false);
       }
     },
-    [fetchCart]
+    []
   );
 
   // Update quantity of item in cart
@@ -154,9 +151,8 @@ export const useCart = (): UseCartReturn => {
           throw new Error("Failed to update cart");
         }
 
-        const data = await response.json();
-        setCart(data);
-        await fetchCart(); // ✅ Refresh after mutation
+        const updatedCart = await response.json();
+        setCart(updatedCart); // ✅ Update cart immediately
       } catch (error) {
         console.error("Error updating cart:", error);
         throw error;
@@ -164,7 +160,7 @@ export const useCart = (): UseCartReturn => {
         setIsLoading(false);
       }
     },
-    [fetchCart, removeFromCart]
+    [removeFromCart]
   );
 
   // Clear entire cart
@@ -184,14 +180,13 @@ export const useCart = (): UseCartReturn => {
         total: 0,
         itemCount: 0,
       });
-      await fetchCart(); // ✅ Refresh after mutation
     } catch (error) {
       console.error("Error clearing cart:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
-  }, [fetchCart]);
+  }, []);
 
   const refreshCart = useCallback(() => {
     return fetchCart();

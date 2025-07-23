@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { GetServerSideProps } from "next";
 import ProductCard from "../../src/components/ProductCard";
-import { useCart } from "../../src/hooks/useCart";
+import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import useCart from '../hooks/useCart';
+import { useCart } from "@/context/CartContext";
 import { supabase } from '@/lib/supabaseClient';
 
 interface LayoutProps {

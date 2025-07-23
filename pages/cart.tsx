@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useCart } from "../src/hooks/useCart";
+import { useCart } from "../src/context/CartContext";
 import Cart from "../src/components/Cart";
 import { supabase } from "@/lib/supabaseClient";
 

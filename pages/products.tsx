@@ -1,7 +1,8 @@
-// pages/products.tsx - Enhanced with Brand Filtering
+// pages/products.tsx - Enhanced with Brand Filtering and Toast
 import React, { useState, useEffect } from "react";
 import ProductCard from "../src/components/ProductCard";
-import { useCart } from "../src/hooks/useCart";
+import { useCart } from "../src/context/CartContext";
+import { toast } from "react-hot-toast"; // ✅ Added
 
 interface Brand {
   id: string;
@@ -42,13 +43,10 @@ const ProductsPage: React.FC = () => {
 
   const { cart, addToCart, isLoading: cartLoading } = useCart();
 
-  // Fetch brands from API
   const fetchBrands = async () => {
     try {
       const response = await fetch("/api/brands");
-      if (!response.ok) {
-        throw new Error("Failed to fetch brands");
-      }
+      if (!response.ok) throw new Error("Failed to fetch brands");
       const data = await response.json();
       setBrands(data.brands || []);
     } catch (err) {
@@ -56,28 +54,18 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  // Fetch products from API
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const params = new URLSearchParams();
-      if (selectedBrand !== "all") {
-        params.append("brand", selectedBrand);
-      }
-      if (searchTerm.trim()) {
-        params.append("search", searchTerm.trim());
-      }
+      if (selectedBrand !== "all") params.append("brand", selectedBrand);
+      if (searchTerm.trim()) params.append("search", searchTerm.trim());
 
-      const url = `/api/products${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
+      const url = `/api/products${params.toString() ? `?${params.toString()}` : ""}`;
       const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch products");
-      }
+      if (!response.ok) throw new Error("Failed to fetch products");
 
       const data: ProductsResponse = await response.json();
       setProducts(data.products);
@@ -89,18 +77,17 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  // Handle adding to cart
+  // ✅ Updated with toast
   const handleAddToCart = async (productId: string) => {
     try {
       await addToCart(productId, 1);
-      alert("Added to cart successfully!");
+      toast.success("Added to cart!");
     } catch (error) {
-      alert("Failed to add to cart. Please try again.");
+      toast.error("Failed to add to cart.");
       console.error("Add to cart error:", error);
     }
   };
 
-  // Get brand theme color
   const getBrandColor = (brandSlug: string) => {
     const colorMap: { [key: string]: string } = {
       liquidheaven: "#4F46E5",
@@ -110,7 +97,6 @@ const ProductsPage: React.FC = () => {
     return colorMap[brandSlug] || "#6366F1";
   };
 
-  // Fetch data on mount and when filters change
   useEffect(() => {
     fetchBrands();
   }, []);
@@ -125,8 +111,6 @@ const ProductsPage: React.FC = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-
-          {/* Cart Summary */}
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-800">
               🛒 Cart: {cart.itemCount} items • Total: ${cart.total.toFixed(2)}
@@ -136,7 +120,7 @@ const ProductsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Brand Filter Bar */}
+      {/* Brand Filter */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-2">
@@ -174,11 +158,10 @@ const ProductsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search + Products */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-            {/* Search */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Products
@@ -194,7 +177,6 @@ const ProductsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -202,7 +184,6 @@ const ProductsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
             <p className="text-red-800">Error: {error}</p>
@@ -215,7 +196,6 @@ const ProductsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Products Grid */}
         {!loading && !error && (
           <div>
             {products.length === 0 ? (
@@ -236,8 +216,6 @@ const ProductsPage: React.FC = () => {
                       }`}
                     {searchTerm && ` matching "${searchTerm}"`}
                   </p>
-
-                  {/* Quick Brand Stats */}
                   {selectedBrand !== "all" && (
                     <div
                       className="px-3 py-1 rounded-full text-white text-sm font-medium"

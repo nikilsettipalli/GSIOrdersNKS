@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { useCart } from '../src/hooks/useCart';
+import { useCart } from '../src/context/CartContext';
 
 export default function Home() {
   const { cart } = useCart();
